@@ -26,7 +26,8 @@ jobs:
         id: tagger
         uses: jimschubert/query-tag-action@v1
         with:
-          skip-unshallow: "true"
+          abbrev: 8
+          commit-ish: HEAD
 
       - uses: actions/upload-artifact@v2
         with:
@@ -53,7 +54,6 @@ jobs:
         with:
           abbrev: 8
           commit-ish: HEAD
-          skip-unshallow: "true"
 
       - name: Set up Python
         uses: actions/setup-python@v1
