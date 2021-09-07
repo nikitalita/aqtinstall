@@ -83,6 +83,7 @@ jobs:
           timeout = 300
           os.mkdir("Qt")
           os.chdir("Qt")
+          platform = "${{ matrix.os }}"
           if platform == "windows-latest":
             prefix = ["aqt.exe", "install"]
           else:
