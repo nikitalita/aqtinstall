@@ -21,6 +21,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
+from multiprocessing import freeze_support
 
 if sys.version_info.major == 2:
     print("aqtinstall requires python 3!")
@@ -28,7 +29,6 @@ if sys.version_info.major == 2:
 
 from aqt.installer import Cli
 from aqt.version import __version__
-from multiprocessing import freeze_support
 
 __all__ = ["__version__"]
 

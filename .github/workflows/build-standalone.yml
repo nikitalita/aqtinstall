@@ -21,13 +21,16 @@ jobs:
       - name: Build standalone binary
         run: |
           ci/build_standalone.bat
-      - name: Get version from tag
-        run: |
-          TAGVERSION=$(git describe --tags)
-          echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
+
+      - name: Find Tag
+        id: tagger
+        uses: jimschubert/query-tag-action@v1
+        with:
+          skip-unshallow: "true"
+
       - uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: aqt-${{steps.tagger.outputs.tag}}-standalone-win64
           path: .gravitybee\dist\latest\aqt.exe
 
   test-standalone:
@@ -44,20 +47,21 @@ jobs:
           fetch-depth: 20
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
-      - name: Get version from tag
-        run: |
-          TAGVERSION=$(git describe --tags)
-          echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
+      - name: Find Tag
+        id: tagger
+        uses: jimschubert/query-tag-action@v1
+        with:
+          skip-unshallow: "true"
 
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.py }}
-
+          
       - name: Download aqt from previous job
         uses: actions/download-artifact@v2
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: aqt-${{steps.tagger.outputs.tag}}-standalone-win64
           path: .
 
       - name: Run aqt
