@@ -75,6 +75,11 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: .
 
+      - name: test
+        if: matrix.os == 'windows-latest'
+        run: |
+          ls
+
       - name: Run aqt
         run: |
           import os
