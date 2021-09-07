@@ -20,12 +20,12 @@ jobs:
           python-version: ${{ matrix.py }}
 
       - name: Get version from setup.py (Windows)
-        if: matrix.os == "windows-latest"
+        if: matrix.os == 'windows-latest'
         run: |
           $PKG_VERSION = $(python setup.py --version)
           echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
       - name: Get version from setup.py (Unix)
-        if: matrix.os != "windows-latest"
+        if: matrix.os != 'windows-latest'
         run: |
           PKG_VERSION=$(python setup.py --version)
           echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
@@ -58,13 +58,13 @@ jobs:
           python-version: ${{ matrix.py }}
 
       - name: Get version from setup.py (Windows)
-        if: matrix.os == "windows-latest"
+        if: matrix.os == 'windows-latest'
         run: |
           $PKG_VERSION = $(python setup.py --version)
           echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
 
       - name: Get version from setup.py (Unix)
-        if: matrix.os != "windows-latest"
+        if: matrix.os != 'windows-latest'
         run: |
           PKG_VERSION=$(python setup.py --version)
           echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
