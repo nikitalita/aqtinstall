@@ -1,0 +1,52 @@
+# This will only run when releases have been created, and will
+# only upload binaries to previously-created releases
+
+name: Upload release artifacts
+
+on: 
+  release:
+    types:
+      - created
+  workflow_dispatch:
+
+jobs:
+  build-standalone:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        py: [3.9]
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 20
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.py }}
+
+      - name: Get version from setup.py (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          $PKG_VERSION = $(python setup.py --version)
+          echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
+
+      - name: Get version from setup.py (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          PKG_VERSION=$(python setup.py --version)
+          echo "ARTIFACT_NAME=aqt-${PKG_VERSION}-standalone-win64" >> $GITHUB_ENV
+
+      - name: Build standalone binary
+        run: |
+          ci/build_standalone.bat
+
+      - name: Upload to Release
+        uses: svenstaro/upload-release-action@v2
+        with: 
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: .gravitybee\dist\latest\aqt.exe
+          asset_name: ${{ env.ARTIFACT_NAME }}
+          tag: ${{ github.ref }}
+          overwrite: true

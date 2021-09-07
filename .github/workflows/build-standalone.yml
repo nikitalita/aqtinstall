@@ -1,10 +1,6 @@
 name: Build and Test standalone Windows binary
 
-on: 
-  push:
-  release:
-    types:
-      - created
+on: push
 
 jobs:
   build-standalone:
@@ -28,30 +24,21 @@ jobs:
         run: |
           $PKG_VERSION = $(python setup.py --version)
           echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
+
       - name: Get version from setup.py (Unix)
         if: matrix.os != 'windows-latest'
         run: |
           PKG_VERSION=$(python setup.py --version)
-          echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=aqt-${PKG_VERSION}-standalone-win64" >> $GITHUB_ENV
 
       - name: Build standalone binary
         run: |
           ci/build_standalone.bat
+
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: .gravitybee\dist\latest\aqt.exe
-      
-      # This will only run when releases have been created, and will
-      # only upload binaries to previously-created releases
-      - name: Upload to Release
-        if: github.event.release.tag_name != ''
-        uses: svenstaro/upload-release-action@v2
-        with: 
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: .gravitybee\dist\latest\aqt.exe
-          asset_name: ${{ env.ARTIFACT_NAME }}
-          tag: ${{ github.ref }}
 
   test-standalone:
     needs: build-standalone
@@ -82,7 +69,7 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           PKG_VERSION=$(python setup.py --version)
-          echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=aqt-${PKG_VERSION}-standalone-${{ matrix.os }}" >> $GITHUB_ENV
 
       - name: Download aqt from previous job
         uses: actions/download-artifact@v2
