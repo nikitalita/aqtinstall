@@ -51,6 +51,8 @@ jobs:
         id: tagger
         uses: jimschubert/query-tag-action@v1
         with:
+          abbrev: 8
+          commit-ish: HEAD
           skip-unshallow: "true"
 
       - name: Set up Python
