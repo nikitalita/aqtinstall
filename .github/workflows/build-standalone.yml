@@ -61,117 +61,117 @@ jobs:
           path: .
 
       - name: Run aqt
-      run: |
-        import os
-        import pathlib
-        import subprocess
-        timeout = 300
-        os.mkdir("Qt")
-        os.chdir("Qt")
-        if platform == "windows-latest":
-          prefix = ["aqt.exe", "install"]
-        else:
-          prefix = ["./aqt", "install"]
-        command_line = prefix
-        platform = "${{ matrix.os }}"
-        qtver = "${{ matrix.qtver }}"
-        if platform == "windows-latest":
-          if qtver.startswith('5.15'):
-            args = [qtver, "windows", "desktop", "win64_msvc2019_64"]
-          elif qtver.startswith('5.14'):
-            args = [qtver, "windows", "desktop", "win64_msvc2017_64"]
-          elif qtver.startswith('6'):
-            args = [qtver, "windows", "desktop", "win64_mingw81"]
+        run: |
+          import os
+          import pathlib
+          import subprocess
+          timeout = 300
+          os.mkdir("Qt")
+          os.chdir("Qt")
+          if platform == "windows-latest":
+            prefix = ["aqt.exe", "install"]
           else:
-            args = [qtver, "windows", "desktop", "win64_msvc2015_64"]
-        elif platform == "macOS-latest":
-          args = [qtver, "mac", "desktop", "clang_64"]
-        else:
-          args = [qtver, "linux", "desktop", "gcc_64"]
-        command_line.extend(args)
-        command_line.extend(["--archives", "qtbase", "icu", "qt"])
-        env = os.environ.copy()
-        github_workspace = pathlib.Path(env["GITHUB_WORKSPACE"])
-        env["AQT_CONFIG"] = (github_workspace / "ci" / "settings.ini").as_posix()
-        env["LOG_CFG"] = (github_workspace / "ci" / "logging.ini").as_posix()
-        print("Execute: {}".format(command_line))
-        try:
-          res = subprocess.run(command_line, timeout=timeout, check=True, env=env)
-        except subprocess.CalledProcessError as cpe:
-          exit(cpe.returncode)
-        assert res.returncode == 0
-        if qtver.startswith('6'):
-          if qtver.startswith('6'):
-            if platform == 'ubuntu-20.04':
-              args = [qtver, "linux", "android", "android_armv7"]
-              command_line = prefix
-              command_line.extend(args)
-              timeout = 360
-            elif platform == "macOS-latest":
-              args = [qtver, "mac", "ios", "ios"]
-              command_line = prefix
-              command_line.extend(args)
-              timeout = 360
+            prefix = ["./aqt", "install"]
+          command_line = prefix
+          platform = "${{ matrix.os }}"
+          qtver = "${{ matrix.qtver }}"
+          if platform == "windows-latest":
+            if qtver.startswith('5.15'):
+              args = [qtver, "windows", "desktop", "win64_msvc2019_64"]
+            elif qtver.startswith('5.14'):
+              args = [qtver, "windows", "desktop", "win64_msvc2017_64"]
+            elif qtver.startswith('6'):
+              args = [qtver, "windows", "desktop", "win64_mingw81"]
             else:
-              args = [qtver, "windows", "android", "android_armv7"]
-              command_line = prefix
-              command_line.extend(args)
-              timeout = 360
+              args = [qtver, "windows", "desktop", "win64_msvc2015_64"]
+          elif platform == "macOS-latest":
+            args = [qtver, "mac", "desktop", "clang_64"]
+          else:
+            args = [qtver, "linux", "desktop", "gcc_64"]
+          command_line.extend(args)
+          command_line.extend(["--archives", "qtbase", "icu", "qt"])
+          env = os.environ.copy()
+          github_workspace = pathlib.Path(env["GITHUB_WORKSPACE"])
+          env["AQT_CONFIG"] = (github_workspace / "ci" / "settings.ini").as_posix()
+          env["LOG_CFG"] = (github_workspace / "ci" / "logging.ini").as_posix()
+          print("Execute: {}".format(command_line))
           try:
-            res = subprocess.run(command_line, timeout=timeout, check=True)
+            res = subprocess.run(command_line, timeout=timeout, check=True, env=env)
           except subprocess.CalledProcessError as cpe:
             exit(cpe.returncode)
           assert res.returncode == 0
-      shell: python
-      working-directory: ${{ github.workspace }}
-
-    - name: Test qmake -query
-      run: |
-        import os
-        import pathlib
-        from subprocess import CalledProcessError, PIPE, run
-        os.chdir("Qt")
-        platform = "${{ matrix.os }}"
-        qtver = "${{ matrix.qtver }}"
-        if platform == "windows-latest":
-          if qtver.startswith('5.15'):
-            arch_dir = 'msvc2019_64'
-          elif qtver.startswith('5.14'):
-            arch_dir = 'msvc2017_64'
-          elif qtver.startswith('6'):
-            arch_dir = 'mingw81_64'
-          else:
-            arch_dir = 'msvc2015_64'
-        elif platform == "macOS-latest":
-          arch_dir = 'clang_64'
-        else:
-          arch_dir = 'gcc_64'
-        try:
-          res = run([f"{qtver}/{arch_dir}/bin/qmake", "-query"], timeout=15, check=True, stdout=PIPE)
-        except CalledProcessError as cpe:
-          exit(cpe.returncode)
-        if res.returncode == 0:
-          qt_prefix_path = pathlib.Path.cwd() / qtver / arch_dir
-          for line in res.stdout.splitlines():
-            if line.startswith(b'QT_INSTALL_PREFIX'):
-              result = line[18:].decode('UTF-8')
-              assert qt_prefix_path.samefile(result)
-          print('PREFIX {}'.format(result))
           if qtver.startswith('6'):
-            if platform == "windows-latest" and qtver.startswith('6'):
-              qmake = os.path.join(qtver, 'android_armv7', 'bin', 'qmake.bat')
-            elif platform == "macOS-latest" and qtver.startswith('6'):
-              qmake = os.path.join(qtver, 'ios', 'bin', 'qmake')
-            else:
-              qmake = os.path.join(qtver, 'android_armv7', 'bin', 'qmake')
+            if qtver.startswith('6'):
+              if platform == 'ubuntu-20.04':
+                args = [qtver, "linux", "android", "android_armv7"]
+                command_line = prefix
+                command_line.extend(args)
+                timeout = 360
+              elif platform == "macOS-latest":
+                args = [qtver, "mac", "ios", "ios"]
+                command_line = prefix
+                command_line.extend(args)
+                timeout = 360
+              else:
+                args = [qtver, "windows", "android", "android_armv7"]
+                command_line = prefix
+                command_line.extend(args)
+                timeout = 360
             try:
-              res = run([qmake, "-query"], timeout=15, check=True, stdout=PIPE)
-            except CalledProcessError as cpe:
+              res = subprocess.run(command_line, timeout=timeout, check=True)
+            except subprocess.CalledProcessError as cpe:
               exit(cpe.returncode)
             assert res.returncode == 0
+        shell: python
+        working-directory: ${{ github.workspace }}
+
+      - name: Test qmake -query
+        run: |
+          import os
+          import pathlib
+          from subprocess import CalledProcessError, PIPE, run
+          os.chdir("Qt")
+          platform = "${{ matrix.os }}"
+          qtver = "${{ matrix.qtver }}"
+          if platform == "windows-latest":
+            if qtver.startswith('5.15'):
+              arch_dir = 'msvc2019_64'
+            elif qtver.startswith('5.14'):
+              arch_dir = 'msvc2017_64'
+            elif qtver.startswith('6'):
+              arch_dir = 'mingw81_64'
+            else:
+              arch_dir = 'msvc2015_64'
+          elif platform == "macOS-latest":
+            arch_dir = 'clang_64'
+          else:
+            arch_dir = 'gcc_64'
+          try:
+            res = run([f"{qtver}/{arch_dir}/bin/qmake", "-query"], timeout=15, check=True, stdout=PIPE)
+          except CalledProcessError as cpe:
+            exit(cpe.returncode)
+          if res.returncode == 0:
+            qt_prefix_path = pathlib.Path.cwd() / qtver / arch_dir
             for line in res.stdout.splitlines():
               if line.startswith(b'QT_INSTALL_PREFIX'):
                 result = line[18:].decode('UTF-8')
+                assert qt_prefix_path.samefile(result)
             print('PREFIX {}'.format(result))
-      shell: python
-      working-directory: ${{ github.workspace }}
+            if qtver.startswith('6'):
+              if platform == "windows-latest" and qtver.startswith('6'):
+                qmake = os.path.join(qtver, 'android_armv7', 'bin', 'qmake.bat')
+              elif platform == "macOS-latest" and qtver.startswith('6'):
+                qmake = os.path.join(qtver, 'ios', 'bin', 'qmake')
+              else:
+                qmake = os.path.join(qtver, 'android_armv7', 'bin', 'qmake')
+              try:
+                res = run([qmake, "-query"], timeout=15, check=True, stdout=PIPE)
+              except CalledProcessError as cpe:
+                exit(cpe.returncode)
+              assert res.returncode == 0
+              for line in res.stdout.splitlines():
+                if line.startswith(b'QT_INSTALL_PREFIX'):
+                  result = line[18:].decode('UTF-8')
+              print('PREFIX {}'.format(result))
+        shell: python
+        working-directory: ${{ github.workspace }}
