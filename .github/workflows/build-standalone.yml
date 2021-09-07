@@ -1,6 +1,10 @@
 name: Build and Test standalone Windows binary
 
-on: push
+on: 
+  push:
+  release:
+    types:
+      - created
 
 jobs:
   build-standalone:
@@ -37,6 +41,17 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: .gravitybee\dist\latest\aqt.exe
+      
+      # This will only run when releases have been created, and will
+      # only upload binaries to previously-created releases
+      - name: Upload to Release
+        if: github.event.release.tag_name != ''
+        uses: svenstaro/upload-release-action@v2
+        with: 
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: .gravitybee\dist\latest\aqt.exe
+          asset_name: ${{ env.ARTIFACT_NAME }}
+          tag: ${{ github.ref }}
 
   test-standalone:
     needs: build-standalone
