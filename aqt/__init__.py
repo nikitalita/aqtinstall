@@ -28,10 +28,13 @@ if sys.version_info.major == 2:
 
 from aqt.installer import Cli
 from aqt.version import __version__
+from multiprocessing import freeze_support
 
 __all__ = ["__version__"]
 
 
 def main():
+    # For Windows standalone binaries, this is a noop on all other environments.
+    freeze_support()
     cli = Cli()
     return cli.run()
