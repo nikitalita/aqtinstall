@@ -21,17 +21,24 @@ jobs:
       - name: Build standalone binary
         run: |
           ci/build_standalone.bat
-
-      - name: Find Tag
-        id: tagger
-        uses: jimschubert/query-tag-action@v1
-        with:
-          abbrev: 8
-          commit-ish: HEAD
-
+      - name: Get version from tag (Windows)
+        if: ${{ matrix.os }} == "windows-latest"
+        run: |
+          $PKG_VERSION = $(python setup.py --version)
+          echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
+      - name: Get version from setup.py (Windows)
+        if: ${{ matrix.os }} == "windows-latest"
+        run: |
+          $PKG_VERSION = $(python setup.py --version)
+          echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
+      - name: Get version from setup.py (Unix)
+        if: ${{ matrix.os }} != "windows-latest"
+        run: |
+          PKG_VERSION=$(python setup.py --version)
+          echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
       - uses: actions/upload-artifact@v2
         with:
-          name: aqt-${{steps.tagger.outputs.tag}}-standalone-win64
+          name: ${{ env.ARTIFACT_NAME }}
           path: .gravitybee\dist\latest\aqt.exe
 
   test-standalone:
@@ -48,12 +55,16 @@ jobs:
           fetch-depth: 20
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
-      - name: Find Tag
-        id: tagger
-        uses: jimschubert/query-tag-action@v1
-        with:
-          abbrev: 8
-          commit-ish: HEAD
+      - name: Get version from setup.py (Windows)
+        if: ${{ matrix.os }} == "windows-latest"
+        run: |
+          $PKG_VERSION = $(python setup.py --version)
+          echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
+      - name: Get version from setup.py (Unix)
+        if: ${{ matrix.os }} != "windows-latest"
+        run: |
+          PKG_VERSION=$(python setup.py --version)
+          echo "ARTIFACT_NAME=aqt-${TAGVERSION}-standalone-win64" >> $GITHUB_ENV
 
       - name: Set up Python
         uses: actions/setup-python@v1
