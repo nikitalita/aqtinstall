@@ -90,9 +90,9 @@ jobs:
           os.chdir("Qt")
           platform = "${{ matrix.os }}"
           if platform == "windows-latest":
-            prefix = ["aqt.exe", "install"]
+            prefix = ["../aqt.exe", "install"]
           else:
-            prefix = ["./aqt", "install"]
+            prefix = ["../aqt", "install"]
           command_line = prefix
           platform = "${{ matrix.os }}"
           qtver = "${{ matrix.qtver }}"
