@@ -19,25 +19,13 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
 
-      - name: Get version from setup.py (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          $PKG_VERSION = $(python setup.py --version)
-          echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
-
-      - name: Get version from setup.py (Unix)
-        if: matrix.os != 'windows-latest'
-        run: |
-          PKG_VERSION=$(python setup.py --version)
-          echo "ARTIFACT_NAME=aqt-${PKG_VERSION}-standalone-win64" >> $GITHUB_ENV
-
       - name: Build standalone binary
         run: |
           ci/build_standalone.bat
 
       - uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: aqt-${{ matrix.os }}-standalone
           path: .gravitybee\dist\latest\aqt.exe
 
   test-standalone:
@@ -59,28 +47,11 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
 
-      - name: Get version from setup.py (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          $PKG_VERSION = $(python setup.py --version)
-          echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
-
-      - name: Get version from setup.py (Unix)
-        if: matrix.os != 'windows-latest'
-        run: |
-          PKG_VERSION=$(python setup.py --version)
-          echo "ARTIFACT_NAME=aqt-${PKG_VERSION}-standalone-${{ matrix.os }}" >> $GITHUB_ENV
-
       - name: Download aqt from previous job
         uses: actions/download-artifact@v2
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: aqt-${{ matrix.os }}-standalone
           path: .
-
-      - name: test
-        if: matrix.os == 'windows-latest'
-        run: |
-          ls
 
       - name: Run aqt
         run: |

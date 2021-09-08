@@ -26,18 +26,6 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
 
-      - name: Get version from setup.py (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          $PKG_VERSION = $(python setup.py --version)
-          echo ("ARTIFACT_NAME=" + "aqt-${PKG_VERSION}-standalone-win64") >> $env:GITHUB_ENV
-
-      - name: Get version from setup.py (Unix)
-        if: matrix.os != 'windows-latest'
-        run: |
-          PKG_VERSION=$(python setup.py --version)
-          echo "ARTIFACT_NAME=aqt-${PKG_VERSION}-standalone-win64" >> $GITHUB_ENV
-
       - name: Build standalone binary
         run: |
           ci/build_standalone.bat
@@ -47,6 +35,6 @@ jobs:
         with: 
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: .gravitybee\dist\latest\aqt.exe
-          asset_name: ${{ env.ARTIFACT_NAME }}
+#          asset_name: aqt_${{ github.ref }}-standalone_win64
           tag: ${{ github.ref }}
           overwrite: true
