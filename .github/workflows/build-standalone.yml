@@ -119,6 +119,10 @@ jobs:
         shell: python
         working-directory: ${{ github.workspace }}
 
+      - name: ls dir
+        run: |
+          ls Qt -r
+
       - name: Test qmake -query
         run: |
           import os
@@ -143,7 +147,12 @@ jobs:
           try:
             res = run([f"{qtver}/{arch_dir}/bin/qmake", "-query"], timeout=15, check=True, stdout=PIPE)
           except CalledProcessError as cpe:
+            print(qmake)
             exit(cpe.returncode)
+          except:
+            print(qmake)
+            exit(1)
+
           if res.returncode == 0:
             qt_prefix_path = pathlib.Path.cwd() / qtver / arch_dir
             for line in res.stdout.splitlines():
@@ -161,7 +170,12 @@ jobs:
               try:
                 res = run([qmake, "-query"], timeout=15, check=True, stdout=PIPE)
               except CalledProcessError as cpe:
+                print(qmake)
                 exit(cpe.returncode)
+              except:
+                print(qmake)
+                exit(1)
+
               assert res.returncode == 0
               for line in res.stdout.splitlines():
                 if line.startswith(b'QT_INSTALL_PREFIX'):
